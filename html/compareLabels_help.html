@@ -1,0 +1,517 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>CompareLabels</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-12-02"><meta name="DC.source" content="compareLabels_help.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>CompareLabels</h1><!--introduction--><p>Compares two sets of labeled data</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#2">Description</a></li><li><a href="#3">Example</a></li></ul></div><h2>Syntax<a name="1"></a></h2><pre>results = compareLabels(EEG, labeledSet1, labeledSet2, timingError, srate)
+[results errorInfo] = compareLabels(EEG, labeledSet1, labeledSet2, timingError, srate)
+[results errorInfo timeInfo] = compareLabels(EEG, labeledSet1, labeledSet2, timingError, srate)</pre><h2>Description<a name="2"></a></h2><p><tt>results = compareLabeledData(EEG, labeledSet1, labeledSet2, timingError, srate)</tt> returns an event structure containing the decision types, together with a start and end time, in seconds. The decision types can take one of five values:</p><p>
+<table>
+<thead><tr><td><strong>Type name</strong></td>
+<td><strong>Description<strong></td></tr>
+<tr>
+<td><tt> Agreement </tt></td>
+<td> The labels of the two label sets are
+                       the same and in type agreement </td></tr>
+<tr>
+<td><tt> TypeError </tt></td>
+<td> The labels from the two label sets are the
+                       same in time but not in type agreement</td></tr>
+<tr>
+<td><tt> FalsePositive </tt></td>
+<td>   A label in label set 2 was not found in
+                       label set 1 at that time</td></tr>
+<tr>
+<td><tt> FalseNegative </tt></td>
+<td>   A label in label set 1 was not found in
+                       label set 2 at that time</td></tr>
+<tr>
+<td><tt> NullAgreement </tt></td>
+<td>   Neither label set was labeled that time</td></tr>
+</table>
+</p><p><tt>[results, errorInfo] = compareLabeledData(EEG, labeledSet1, labeledSet2, timingError, srate)</tt> returns an additional structure <tt>errorInfo</tt> which contains information about decisions with <tt>typeError, falsePositive</tt> and <tt>falseNegative</tt>.</p><p><tt>[results, errorInfo, timeInfo] = compareLabeledData(EEG, labeledSet1, labeledSet2, timingError, srate)</tt> returns a summary of the time, in seconds, in each of the five states described above.</p><p>The input arguments are:</p><p>
+<table>
+<thead><tr><td><strong>Argument</strong></td>
+<td><strong>Description<strong></td></tr>
+<tr>
+<td><tt> inputData </tt></td>
+<td> Either a 2-D matrix input or an EEGLAB EEG structure
+                 containing 2-D data. Dimensions are (channels x frames) </td></tr>
+<tr>
+<td><tt> labeledSet1</tt></td>
+<td> The output of either <tt>markEvents</tt> or <tt>plotLabeledData</tt>
+(treated as ground truth)</td></tr>
+<tr>
+<tr>
+<td><tt>labeledSet2 </tt></td>
+<td> The output of either <tt>markEvents</tt> or <tt>plotLabeledData</tt> </td></tr>
+<tr>
+<td><tt> timingError </tt></td>
+<td>   Allowable timing error to still consider two regions as
+                 the same (in seconds) (See examples below for
+                 further details)</td></tr>
+<tr>
+<td><tt> srate </tt></td>
+<td>   Sampling rate of data in Hz</td></tr>
+</table>
+</p><p>The outputs are</p><p>
+<table>
+<thead><tr><td><strong>Argument</strong></td>
+<td><strong>Description<strong></td></tr>
+<tr>
+<td><tt> results </tt></td>
+<td> Cell array with three columns: [agreement type], startTime], [endTime] </td></tr>
+<tr>
+<td><tt> errorInfo </tt></td>
+<td> For events with 'TypeError', 'FalsePositive' or
+                  'FalseNegative', will give the following output:
+                  [type1], [type2], [startTime], [endTime] (see examples
+                  below)</td></tr>
+<tr>
+<td><tt> timeInfo </tt></td>
+<td>   A structure with output fields <tt>.agreement</tt>, <tt>.typeError</tt>,
+<tt>.falsePositive</tt>, <tt>.falseNegative</tt>, <tt>.totalTime</tt>. Each field represents the
+total time, in seconds, of each state.
+<tr>
+</table>
+</p><h2>Example<a name="3"></a></h2><p>Compare the labelings using two different channel sets to train an artifact discrimination model:</p><pre class="codeinput">     training = pop_loadset(<span class="string">'data/training.set'</span>);
+     load(<span class="string">'data/labels.mat'</span>);
+
+     <span class="comment">% build model using all 64 EEG Channels</span>
+     model1 = getModel(training, labels, 1:64);
+
+     <span class="comment">% now build model using only 32 EEG channels</span>
+     model2 = getModel(training, labels, 1:32);
+
+     <span class="comment">% now load testing dataset</span>
+     testing = pop_loadset(<span class="string">'data/testing.set'</span>);
+
+     <span class="comment">% Use sliding window of .125s for data sampled at 256hz</span>
+     results1 = labelData(testing, model1, 256, .125);
+     results2 = labelData(testing, model2, 256, .125);
+
+     <span class="comment">% apply a certainty policy to remove false positives</span>
+
+     results1 = thresholdPolicy(results1, <span class="string">'None'</span>, .5);
+     results2 = thresholdPolicy(results2, <span class="string">'None'</span>, .5);
+
+     <span class="comment">% plot the data and get an event list ignoring the category 'None'</span>
+
+     classes = {<span class="string">'Eye Blink'</span>, <span class="string">'Eye Left Movement'</span>, <span class="string">'Eye Up Movement'</span>, <span class="string">'Eyebrow Movement'</span>, <span class="string">'Jaw Clench'</span>, <span class="string">'Jaw Movement'</span>};
+     labelSet1 = plotLabeledData(testing, model1, results1, <span class="string">'srate'</span>, 256, <span class="string">'includeClasses'</span>, classes);
+     labelSet2 = plotLabeledData(testing, model2, results2, <span class="string">'srate'</span>, 256, <span class="string">'includeClasses'</span>, classes);
+
+     <span class="comment">% compare the labelings, allowing for up to .100s timing error, for</span>
+     <span class="comment">% data sampled at 256hz.</span>
+
+     [results, errorInfo, timeInfo] = compareLabels(testing, labelSet1,<span class="keyword">...</span>
+     labelSet2, .1, 256)
+</pre><pre class="codeoutput">pop_loadset(): loading file data\training.set ...
+pop_loadset(): loading file data\testing.set ...
+
+-----------------------------------------------------
+Total Time in Agreement = 460.527 seconds
+Total Time in TypeError =  2.219 seconds
+Total Time in FalsePositive = 16.016 seconds
+Total Time in FalseNegative =  0.773 seconds
+Total Time of Data = 479.996 seconds
+-----------------------------------------------------
+
+results = 
+
+    'NullAgreement'    [       0]    [ 12.3281]
+    'Agreement'        [ 12.3320]    [ 13.1484]
+    'NullAgreement'    [ 13.1523]    [ 16.3008]
+    'FalseNegative'    [ 16.3047]    [ 16.3281]
+    'Agreement'        [ 16.3320]    [ 16.8984]
+    'FalseNegative'    [ 16.9023]    [ 16.9258]
+    'NullAgreement'    [ 16.9297]    [ 19.7031]
+    'Agreement'        [ 19.7070]    [ 20.2734]
+    'TypeError'        [ 20.2773]    [ 20.3008]
+    'NullAgreement'    [ 20.3047]    [ 25.7031]
+    'Agreement'        [ 25.7070]    [ 26.3984]
+    'TypeError'        [ 26.4023]    [ 26.4258]
+    'NullAgreement'    [ 26.4297]    [ 37.8008]
+    'FalsePositive'    [ 37.8047]    [ 37.9258]
+    'NullAgreement'    [ 37.9297]    [ 40.8281]
+    'Agreement'        [ 40.8320]    [ 41.6484]
+    'NullAgreement'    [ 41.6523]    [ 70.3008]
+    'FalsePositive'    [ 70.3047]    [ 70.4258]
+    'NullAgreement'    [ 70.4297]    [ 73.6758]
+    'FalsePositive'    [ 73.6797]    [ 73.8008]
+    'NullAgreement'    [ 73.8047]    [ 83.5508]
+    'FalsePositive'    [ 83.5547]    [ 83.8008]
+    'NullAgreement'    [ 83.8047]    [ 93.1758]
+    'FalsePositive'    [ 93.1797]    [ 93.5508]
+    'NullAgreement'    [ 93.5547]    [ 93.8008]
+    'TypeError'        [ 93.8047]    [ 94.0508]
+    'NullAgreement'    [ 94.0547]    [113.8008]
+    'FalsePositive'    [113.8047]    [113.9258]
+    'NullAgreement'    [113.9297]    [118.9531]
+    'Agreement'        [118.9570]    [119.6484]
+    'NullAgreement'    [119.6523]    [124.1758]
+    'FalseNegative'    [124.1797]    [124.4258]
+    'NullAgreement'    [124.4297]    [173.3281]
+    'Agreement'        [173.3320]    [173.7734]
+    'TypeError'        [173.7773]    [174.0508]
+    'NullAgreement'    [174.0547]    [175.1758]
+    'TypeError'        [175.1797]    [175.2031]
+    'Agreement'        [175.2070]    [175.6484]
+    'TypeError'        [175.6523]    [175.9258]
+    'FalsePositive'    [175.9297]    [177.3008]
+    'NullAgreement'    [177.3047]    [177.8008]
+    'FalsePositive'    [177.8047]    [178.5508]
+    'TypeError'        [178.5547]    [178.6758]
+    'FalseNegative'    [178.6797]    [178.8008]
+    'NullAgreement'    [178.8047]    [178.9258]
+    'FalseNegative'    [178.9297]    [178.9531]
+    'Agreement'        [178.9570]    [179.2734]
+    'TypeError'        [179.2773]    [179.4531]
+    'Agreement'        [179.4570]    [182.0234]
+    'TypeError'        [182.0273]    [182.0508]
+    'FalseNegative'    [182.0547]    [182.1758]
+    'NullAgreement'    [182.1797]    [184.4531]
+    'Agreement'        [184.4570]    [185.1484]
+    'TypeError'        [185.1523]    [185.1758]
+    'NullAgreement'    [185.1797]    [199.4258]
+    'FalsePositive'    [199.4297]    [199.6758]
+    'NullAgreement'    [199.6797]    [206.6758]
+    'FalsePositive'    [206.6797]    [207.4258]
+    'NullAgreement'    [207.4297]    [217.8008]
+    'FalsePositive'    [217.8047]    [218.3008]
+    'NullAgreement'    [218.3047]    [218.5508]
+    'FalsePositive'    [218.5547]    [218.9258]
+    'NullAgreement'    [218.9297]    [235.8008]
+    'FalsePositive'    [235.8047]    [236.4258]
+    'NullAgreement'    [236.4297]    [242.4258]
+    'FalsePositive'    [242.4297]    [243.0508]
+    'NullAgreement'    [243.0547]    [247.6758]
+    'FalsePositive'    [247.6797]    [248.6758]
+    'NullAgreement'    [248.6797]    [258.9258]
+    'FalsePositive'    [258.9297]    [259.5508]
+    'NullAgreement'    [259.5547]    [263.6758]
+    'FalsePositive'    [263.6797]    [264.0508]
+    'NullAgreement'    [264.0547]    [265.1758]
+    'FalsePositive'    [265.1797]    [265.9258]
+    'NullAgreement'    [265.9297]    [274.0781]
+    'Agreement'        [274.0820]    [274.7734]
+    'FalseNegative'    [274.7773]    [274.8008]
+    'NullAgreement'    [274.8047]    [285.0781]
+    'Agreement'        [285.0820]    [285.7734]
+    'NullAgreement'    [285.7773]    [292.5508]
+    'FalseNegative'    [292.5547]    [292.6758]
+    'NullAgreement'    [292.6797]    [296.9258]
+    'TypeError'        [296.9297]    [296.9531]
+    'Agreement'        [296.9570]    [297.5234]
+    'NullAgreement'    [297.5273]    [349.9531]
+    'Agreement'        [349.9570]    [350.6484]
+    'FalseNegative'    [350.6523]    [350.6758]
+    'NullAgreement'    [350.6797]    [355.5508]
+    'FalseNegative'    [355.5547]    [355.5781]
+    'Agreement'        [355.5820]    [356.1484]
+    'TypeError'        [356.1523]    [356.1758]
+    'FalsePositive'    [356.1797]    [357.0508]
+    'TypeError'        [357.0547]    [357.1758]
+    'FalsePositive'    [357.1797]    [357.3008]
+    'TypeError'        [357.3047]    [357.4258]
+    'FalsePositive'    [357.4297]    [361.0508]
+    'NullAgreement'    [361.0547]    [361.5508]
+    'FalsePositive'    [361.5547]    [361.9258]
+    'TypeError'        [361.9297]    [362.3281]
+    'Agreement'        [362.3320]    [363.1484]
+    'TypeError'        [363.1523]    [363.2031]
+    'Agreement'        [363.2070]    [364.0234]
+    'TypeError'        [364.0273]    [364.3008]
+    'NullAgreement'    [364.3047]    [365.8008]
+    'FalsePositive'    [365.8047]    [366.3008]
+    'NullAgreement'    [366.3047]    [382.3008]
+    'FalsePositive'    [382.3047]    [382.4258]
+    'NullAgreement'    [382.4297]    [446.7031]
+    'Agreement'        [446.7070]    [447.5234]
+    'FalseNegative'    [447.5273]    [447.5508]
+    'NullAgreement'    [447.5547]    [458.8008]
+    'FalsePositive'    [458.8047]    [459.3008]
+    'NullAgreement'    [459.3047]    [459.4258]
+    'FalsePositive'    [459.4297]    [459.8008]
+    'NullAgreement'    [459.8047]    [462.8008]
+    'FalsePositive'    [462.8047]    [462.9258]
+    'NullAgreement'    [462.9297]    [472.3008]
+    'FalsePositive'    [472.3047]    [472.6758]
+    'NullAgreement'    [472.6797]    [479.9961]
+
+
+errorInfo = 
+
+    'Eye Left Movement'    'Null'                 [ 16.3047]    [ 16.3281]
+    'Eye Left Movement'    'Null'                 [ 16.9023]    [ 16.9258]
+    'Eye Blink'            'Eye Up Movement'      [ 20.2773]    [ 20.3008]
+    'Eye Blink'            'Eye Up Movement'      [ 26.4023]    [ 26.4258]
+    'Null'                 'Jaw Clench'           [ 37.8047]    [ 37.9258]
+    'Null'                 'Jaw Clench'           [ 70.3047]    [ 70.4258]
+    'Null'                 'Jaw Clench'           [ 73.6797]    [ 73.8008]
+    'Null'                 'Jaw Clench'           [ 83.5547]    [ 83.8008]
+    'Null'                 'Jaw Clench'           [ 93.1797]    [ 93.5508]
+    'Eye Blink'            'Jaw Clench'           [ 93.8047]    [ 94.0508]
+    'Null'                 'Jaw Clench'           [113.8047]    [113.9258]
+    'Eye Blink'            'Null'                 [124.1797]    [124.4258]
+    'Eye Blink'            'Jaw Clench'           [173.7773]    [174.0508]
+    'Eye Blink'            'Eye Up Movement'      [175.1797]    [175.2031]
+    'Eye Blink'            'Jaw Clench'           [175.6523]    [175.9258]
+    'Null'                 'Jaw Clench'           [175.9297]    [177.3008]
+    'Null'                 'Jaw Clench'           [177.8047]    [178.5508]
+    'Eye Up Movement'      'Jaw Clench'           [178.5547]    [178.6758]
+    'Eye Up Movement'      'Null'                 [178.6797]    [178.8008]
+    'Eye Left Movement'    'Null'                 [178.9297]    [178.9531]
+    'Eye Blink'            'Jaw Clench'           [179.2773]    [179.4531]
+    'Jaw Movement'         'Jaw Clench'           [182.0273]    [182.0508]
+    'Eye Left Movement'    'Null'                 [182.0547]    [182.1758]
+    'Eye Blink'            'Eye Up Movement'      [185.1523]    [185.1758]
+    'Null'                 'Jaw Clench'           [199.4297]    [199.6758]
+    'Null'                 'Jaw Clench'           [206.6797]    [207.4258]
+    'Null'                 'Jaw Clench'           [217.8047]    [218.3008]
+    'Null'                 'Jaw Clench'           [218.5547]    [218.9258]
+    'Null'                 'Jaw Clench'           [235.8047]    [236.4258]
+    'Null'                 'Jaw Clench'           [242.4297]    [243.0508]
+    'Null'                 'Jaw Clench'           [247.6797]    [248.6758]
+    'Null'                 'Jaw Clench'           [258.9297]    [259.5508]
+    'Null'                 'Jaw Clench'           [263.6797]    [264.0508]
+    'Null'                 'Jaw Clench'           [265.1797]    [265.9258]
+    'Eye Blink'            'Null'                 [274.7773]    [274.8008]
+    'Eye Up Movement'      'Null'                 [292.5547]    [292.6758]
+    'Eye Blink'            'Eye Up Movement'      [296.9297]    [296.9531]
+    'Eye Blink'            'Null'                 [350.6523]    [350.6758]
+    'Eye Up Movement'      'Null'                 [355.5547]    [355.5781]
+    'Eye Blink'            'Jaw Clench'           [356.1523]    [356.1758]
+    'Null'                 'Jaw Clench'           [356.1797]    [357.0508]
+    'Eye Blink'            'Jaw Clench'           [357.0547]    [357.1758]
+    'Null'                 'Jaw Clench'           [357.1797]    [357.3008]
+    'Eye Blink'            'Jaw Clench'           [357.3047]    [357.4258]
+    'Null'                 'Jaw Clench'           [357.4297]    [361.0508]
+    'Null'                 'Jaw Clench'           [361.5547]    [361.9258]
+    'Eye Blink'            'Jaw Clench'           [361.9297]    [362.3281]
+    'Eye Blink'            'Eye Left Movement'    [363.1523]    [363.2031]
+    'Eye Left Movement'    'Eye Up Movement'      [363.2070]    [364.0234]
+    'Eye Left Movement'    'Eyebrow Movement'     [364.0273]    [364.3008]
+    'Null'                 'Jaw Clench'           [365.8047]    [366.3008]
+    'Null'                 'Jaw Clench'           [382.3047]    [382.4258]
+    'Eye Blink'            'Null'                 [447.5273]    [447.5508]
+    'Null'                 'Jaw Clench'           [458.8047]    [459.3008]
+    'Null'                 'Jaw Clench'           [459.4297]    [459.8008]
+    'Null'                 'Jaw Clench'           [462.8047]    [462.9258]
+    'Null'                 'Jaw Clench'           [472.3047]    [472.6758]
+
+
+timeInfo = 
+
+        agreement: 460.5273
+        typeError: 2.2188
+    falsePositive: 16.0156
+    falseNegative: 0.7734
+        totalTime: 479.9961
+
+</pre><img vspace="5" hspace="5" src="compareLabels_help_01.png" alt=""> <img vspace="5" hspace="5" src="compareLabels_help_02.png" alt=""> <p>Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+%% CompareLabels
+% Compares two sets of labeled data
+%
+%% Syntax
+%  results = compareLabels(EEG, labeledSet1, labeledSet2, timingError, srate)
+%  [results errorInfo] = compareLabels(EEG, labeledSet1, labeledSet2, timingError, srate)
+%  [results errorInfo timeInfo] = compareLabels(EEG, labeledSet1, labeledSet2, timingError, srate)
+%
+%% Description
+% |results = compareLabeledData(EEG, labeledSet1, labeledSet2,
+% timingError, srate)| returns an event structure containing the decision
+% types, together with a start and end time, in seconds. The decision
+% types can take one of five values:
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Type name</strong></td>
+% <td><strong>Description<strong></td></tr>
+% <tr>
+% <td><tt> Agreement </tt></td>
+% <td> The labels of the two label sets are
+%                        the same and in type agreement </td></tr>
+% <tr>
+% <td><tt> TypeError </tt></td>
+% <td> The labels from the two label sets are the
+%                        same in time but not in type agreement</td></tr>
+% <tr>
+% <td><tt> FalsePositive </tt></td>
+% <td>   A label in label set 2 was not found in
+%                        label set 1 at that time</td></tr>
+% <tr>
+% <td><tt> FalseNegative </tt></td>
+% <td>   A label in label set 1 was not found in
+%                        label set 2 at that time</td></tr>
+% <tr>
+% <td><tt> NullAgreement </tt></td>
+% <td>   Neither label set was labeled that time</td></tr>
+% </table>
+% </html> 
+%
+% |[results, errorInfo] = compareLabeledData(EEG, labeledSet1, labeledSet2,
+% timingError, srate)| returns an additional structure |errorInfo| which
+% contains information about decisions with |typeError,
+% falsePositive| and |falseNegative|.
+%
+% |[results, errorInfo, timeInfo] = compareLabeledData(EEG, labeledSet1, labeledSet2,
+% timingError, srate)| returns a summary of the time, in seconds, in each
+% of the five states described above. 
+%
+% The input arguments are:
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Argument</strong></td>
+% <td><strong>Description<strong></td></tr>
+% <tr>
+% <td><tt> inputData </tt></td>
+% <td> Either a 2-D matrix input or an EEGLAB EEG structure
+%                  containing 2-D data. Dimensions are (channels x frames) </td></tr>
+% <tr>
+% <td><tt> labeledSet1</tt></td>
+% <td> The output of either <tt>markEvents</tt> or <tt>plotLabeledData</tt> 
+% (treated as ground truth)</td></tr>
+% <tr>
+% <tr>
+% <td><tt>labeledSet2 </tt></td>
+% <td> The output of either <tt>markEvents</tt> or <tt>plotLabeledData</tt> </td></tr>
+% <tr>
+% <td><tt> timingError </tt></td>
+% <td>   Allowable timing error to still consider two regions as
+%                  the same (in seconds) (See examples below for
+%                  further details)</td></tr>
+% <tr>
+% <td><tt> srate </tt></td>
+% <td>   Sampling rate of data in Hz</td></tr>
+% </table>
+% </html> 
+%
+% The outputs are
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Argument</strong></td>
+% <td><strong>Description<strong></td></tr>
+% <tr>
+% <td><tt> results </tt></td>
+% <td> Cell array with three columns: [agreement type], startTime], [endTime] </td></tr>
+% <tr>
+% <td><tt> errorInfo </tt></td>
+% <td> For events with 'TypeError', 'FalsePositive' or
+%                   'FalseNegative', will give the following output: 
+%                   [type1], [type2], [startTime], [endTime] (see examples
+%                   below)</td></tr>
+% <tr>
+% <td><tt> timeInfo </tt></td>
+% <td>   A structure with output fields <tt>.agreement</tt>, <tt>.typeError</tt>,
+% <tt>.falsePositive</tt>, <tt>.falseNegative</tt>, <tt>.totalTime</tt>. Each field represents the
+% total time, in seconds, of each state.
+% <tr>
+% </table>
+% </html> 
+%
+
+%% Example
+% Compare the labelings using two different channel sets to
+% train an artifact discrimination model:
+
+     training = pop_loadset('data/training.set');
+     load('data/labels.mat');
+     
+     % build model using all 64 EEG Channels
+     model1 = getModel(training, labels, 1:64);
+     
+     % now build model using only 32 EEG channels
+     model2 = getModel(training, labels, 1:32);
+     
+     % now load testing dataset
+     testing = pop_loadset('data/testing.set');
+
+     % Use sliding window of .125s for data sampled at 256hz
+     results1 = labelData(testing, model1, 256, .125);
+     results2 = labelData(testing, model2, 256, .125);
+
+     % apply a certainty policy to remove false positives
+
+     results1 = thresholdPolicy(results1, 'None', .5);
+     results2 = thresholdPolicy(results2, 'None', .5);
+
+     % plot the data and get an event list ignoring the category 'None'
+
+     classes = {'Eye Blink', 'Eye Left Movement', 'Eye Up Movement', 'Eyebrow Movement', 'Jaw Clench', 'Jaw Movement'};
+     labelSet1 = plotLabeledData(testing, model1, results1, 'srate', 256, 'includeClasses', classes);
+     labelSet2 = plotLabeledData(testing, model2, results2, 'srate', 256, 'includeClasses', classes);
+
+     % compare the labelings, allowing for up to .100s timing error, for
+     % data sampled at 256hz. 
+
+     [results, errorInfo, timeInfo] = compareLabels(testing, labelSet1,...
+     labelSet2, .1, 256)
+%%
+% Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,249 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>plotLabeledData</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-12-02"><meta name="DC.source" content="plotLabeledData_help.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>plotLabeledData</h1><!--introduction--><p>plots the labeled data from labelData</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#2">Description</a></li><li><a href="#3">Example</a></li></ul></div><h2>Syntax<a name="1"></a></h2><pre> labelSet = plotLabeledData(inputData, model, results)
+ labelSet = plotLabeledData(inputData, model, results, 'param1', value1, ...)</pre><h2>Description<a name="2"></a></h2><p><tt>labelSet = plotLabeledData(inputData, model, results)</tt> displays a data scroll plot window with the event information taken from <tt>labelData</tt>.</p><p><tt>labelSet = plotLabeledData(..., 'param1', value1, ...)</tt> specifies additional parameters to be used.</p><p>The required input arguments are are:</p><p>
+<table>
+<thead><tr><td><strong>Arguments</strong></td>
+<td><strong>Description<strong></td></tr>
+<tr>
+<td><tt> inputData </tt></td>
+<td> An EEGLAB EEG structure containing continuous 2D EEG data
+                 or a 2D matrix array of size (channels x frames) </td></tr>
+<tr>
+<td><tt> model </tt></td>
+<td> The SVM model output from <tt>getModel</tt>. </td></tr>
+<tr>
+<td><tt> results </tt></td>
+<td>  The output from <tt>labelData</tt> </td></tr>
+</table>
+</p><p>The optional inputs are passed in as name-value pairs:</p><p>
+<table>
+<thead><tr><td><strong>Name</strong></td>
+<td><strong>Description<strong></td></tr>
+<tr>
+<td><tt> 'srate' </tt></td>
+<td> Sampling rate of the data </td></tr>
+<tr>
+<td><tt> 'includeClasses' </tt></td>
+<td> Cell array of strings denoting the desired plotting
+                    categories or labels (all by default) </td></tr>
+<tr>
+<td><tt> 'eventList' </tt></td>
+<td> An array of structures with a .type and .latency field. Both fields
+are numeric. The field .latency is represented in frames.</td></tr>
+<tr>
+<td><tt> 'chanlocs' </tt></td>
+<td> An array of structures with a <tt>.labels</tt> field which is a string label
+denoting the channel name.  </td></tr>
+</table>
+</p><p>The output argument is:</p><p>
+<table>
+<thead><tr><td><strong>Argument</strong></td>
+<td><strong>Description<strong></td></tr>
+<tr>
+<td><tt> labelSet </tt></td>
+<td> A cell array with columns [eventtype], [startTime] and [endTime] </td></tr>
+</table>
+</p><h2>Example<a name="3"></a></h2><p>Build the artifact classification model from the sample data included in the toolbox, and display only eye blinks and jaw clenches:</p><pre class="codeinput">   load <span class="string">data/training</span>;
+   load <span class="string">data/labels</span>;
+   model = getModel(training, labels, 1 : 64);
+   load <span class="string">data/testing</span>;
+   results = labelData(testing, model, 256, .125);
+   labelSet = plotLabeledData(testing, model, results, <span class="string">'srate'</span>, 256, <span class="string">'includeClasses'</span>, {<span class="string">'Eye Blink'</span>, <span class="string">'Jaw Clench'</span>})
+</pre><pre class="codeoutput">
+labelSet = 
+
+    'Eye Blink'     [ 12.4336]    [ 13.0547]
+    'Eye Blink'     [ 19.8086]    [ 20.3047]
+    'Eye Blink'     [ 25.8086]    [ 26.4297]
+    'Eye Blink'     [ 40.9336]    [ 41.6797]
+    'Eye Blink'     [ 46.4336]    [ 46.6797]
+    'Eye Blink'     [ 55.5586]    [ 55.9297]
+    'Eye Blink'     [ 69.1836]    [ 69.3047]
+    'Eye Blink'     [ 93.6836]    [ 94.3047]
+    'Eye Blink'     [ 97.3086]    [ 97.5547]
+    'Eye Blink'     [105.6836]    [105.8047]
+    'Eye Blink'     [119.0586]    [119.6797]
+    'Eye Blink'     [120.3086]    [120.4297]
+    'Eye Blink'     [123.9336]    [124.4297]
+    'Eye Blink'     [137.4336]    [137.8047]
+    'Eye Blink'     [139.5586]    [139.9297]
+    'Eye Blink'     [164.3086]    [164.5547]
+    'Eye Blink'     [167.8086]    [168.0547]
+    'Eye Blink'     [173.4336]    [174.0547]
+    'Eye Blink'     [175.1836]    [176.0547]
+    'Eye Blink'     [177.1836]    [177.3047]
+    'Eye Blink'     [178.1836]    [178.3047]
+    'Eye Blink'     [178.4336]    [178.5547]
+    'Eye Blink'     [179.0586]    [179.5547]
+    'Jaw Clench'    [181.5586]    [181.9297]
+    'Eye Blink'     [184.5586]    [185.1797]
+    'Eye Blink'     [228.1836]    [228.3047]
+    'Eye Blink'     [235.6836]    [235.9297]
+    'Eye Blink'     [268.1836]    [268.4297]
+    'Eye Blink'     [269.8086]    [270.1797]
+    'Eye Blink'     [274.1836]    [274.8047]
+    'Eye Blink'     [285.1836]    [285.6797]
+    'Eye Blink'     [296.9336]    [297.4297]
+    'Eye Blink'     [350.0586]    [350.6797]
+    'Eye Blink'     [355.6836]    [356.4297]
+    'Eye Blink'     [356.5586]    [357.8047]
+    'Eye Blink'     [358.1836]    [358.3047]
+    'Eye Blink'     [358.9336]    [359.3047]
+    'Eye Blink'     [361.8086]    [362.6797]
+    'Eye Blink'     [362.8086]    [363.1797]
+    'Eye Blink'     [405.3086]    [405.4297]
+    'Eye Blink'     [422.0586]    [422.1797]
+    'Eye Blink'     [446.6836]    [447.5547]
+
+</pre><img vspace="5" hspace="5" src="plotLabeledData_help_01.png" alt=""> <p>Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+%% plotLabeledData 
+% plots the labeled data from labelData
+%
+%% Syntax
+%   labelSet = plotLabeledData(inputData, model, results)
+%   labelSet = plotLabeledData(inputData, model, results, 'param1', value1, ...)
+%
+%% Description
+%
+% |labelSet = plotLabeledData(inputData, model, results)|
+% displays a data scroll plot window with the event information taken
+% from |labelData|. 
+%
+% |labelSet = plotLabeledData(..., 'param1', value1, ...)| specifies 
+% additional parameters to be used. 
+%
+% The required input arguments are are:
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Arguments</strong></td>
+% <td><strong>Description<strong></td></tr>
+% <tr>
+% <td><tt> inputData </tt></td>
+% <td> An EEGLAB EEG structure containing continuous 2D EEG data
+%                  or a 2D matrix array of size (channels x frames) </td></tr>
+% <tr>
+% <td><tt> model </tt></td>
+% <td> The SVM model output from <tt>getModel</tt>. </td></tr>
+% <tr>
+% <td><tt> results </tt></td>
+% <td>  The output from <tt>labelData</tt> </td></tr>
+% </table>
+% </html>
+%
+% The optional inputs are passed in as name-value pairs:
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Name</strong></td>
+% <td><strong>Description<strong></td></tr>
+% <tr>
+% <td><tt> 'srate' </tt></td>
+% <td> Sampling rate of the data </td></tr>
+% <tr>
+% <td><tt> 'includeClasses' </tt></td>
+% <td> Cell array of strings denoting the desired plotting
+%                     categories or labels (all by default) </td></tr>
+% <tr>
+% <td><tt> 'eventList' </tt></td>
+% <td> An array of structures with a .type and .latency field. Both fields
+% are numeric. The field .latency is represented in frames.</td></tr>
+% <tr>
+% <td><tt> 'chanlocs' </tt></td>
+% <td> An array of structures with a <tt>.labels</tt> field which is a string label
+% denoting the channel name.  </td></tr>
+% </table>
+% </html>
+%
+% The output argument is:
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Argument</strong></td>
+% <td><strong>Description<strong></td></tr>
+% <tr>
+% <td><tt> labelSet </tt></td>
+% <td> A cell array with columns [eventtype], [startTime] and [endTime] </td></tr>
+% </table>
+% </html>
+%
+%% Example
+% Build the artifact classification model from the sample data
+% included in the toolbox, and display only eye blinks and jaw clenches:
+
+   load data/training;
+   load data/labels;
+   model = getModel(training, labels, 1 : 64);
+   load data/testing;
+   results = labelData(testing, model, 256, .125);
+   labelSet = plotLabeledData(testing, model, results, 'srate', 256, 'includeClasses', {'Eye Blink', 'Jaw Clench'})
+
+%%
+% Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio
+##### SOURCE END #####
+--></body></html>

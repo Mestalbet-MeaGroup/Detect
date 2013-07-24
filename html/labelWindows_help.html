@@ -1,0 +1,236 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>labelWindows</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-12-02"><meta name="DC.source" content="labelWindows_help.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>labelWindows</h1><!--introduction--><p>Classify data windows using an SVM model and compare to original labels</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax:</a></li><li><a href="#2">Description</a></li><li><a href="#3">Example</a></li></ul></div><h2>Syntax:<a name="1"></a></h2><pre>  results = labelWindows(inputData, model)
+  [results accuracy] = labelWindows(inputData, model, actualLabels)</pre><h2>Description<a name="2"></a></h2><p><tt>results = labelWindows(inputData, model)</tt> returns an array of structures containing the classification results of <tt>inputData</tt> based on <tt>model</tt>.</p><p><tt>[results, accuracy] = labelWindows(inputData, model, actualLabels)</tt> returns the classification accuracy in the field <tt>accuracy</tt>. The <tt>actualLabels</tt> must be passed in order to compute the accuracy.</p><p>The input arguments are:</p><p>
+<table>
+<thead>
+<tr><td><strong>Argument</strong></td>
+<td><strong>Description<strong></td></tr>
+</thead>
+<tr>
+<td><tt> inputData </tt></td>
+<td> Either a 3-dimensional matrix of size channels x windowSize x windows,
+     or an EEGLAB EEG data structure containing epoched data. </td></tr>
+<tr>
+<td><tt> model </tt></td>
+<td> The output model structure from getModel. </td></tr>
+<tr>
+<td><tt> actualLabels </tt></td>
+<td>  (Optional) A cell array of strings denoting the true class labels
+      for <tt>inputData</tt>. Must be of length windows. </td></tr>
+</table>
+</p><p>The output argument is an array of structures with the following fields:</p><p>
+<table>
+<thead><tr><td><strong>Field</strong></td>
+<td><strong>Description<strong></td></tr>
+<tr>
+<td><tt> .label </tt></td>
+<td> String label with the classified class </td></tr>
+<tr>
+<td><tt> .actualLabel </tt></td>
+<td>  The original label for the window. This will be empty if the
+                        input actualLabels was omitted. </td></tr>
+<tr>
+<td><tt> .certainty </tt></td>
+<td>  The certainty of the prediction </td></tr>
+<tr>
+<td><tt> .likelihoods </tt></td>
+<td> The order of the categories, from most likely to
+                        least likely. The first entry of <tt>.likelihoods</tt> is
+                        the same as <tt>.label</tt>. </td></tr>
+<tr>
+<td><tt> .prob_estimates </tt></td>
+<td>  The estimated probability distribution of each category </td></tr>
+</table>
+</p><h2>Example<a name="3"></a></h2><p>Build a classification model using only the first 32 channels in the dataset, using an order 5 autogressive model as features. Use 2 cross validations as well. Use the sample training dataset provided with the toolbox for illustration. Use the output to classify the same data.</p><pre class="codeinput">    load <span class="string">data/training.mat</span>;
+    load <span class="string">data/labels.mat</span>;
+    model = getModel(training, labels, 1:32, 2, @getARfeatures, 5)
+    [results accuracy] = labelWindows(training, model, labels)
+    results(10)
+</pre><pre class="codeoutput">
+model = 
+
+                SVM: [1x1 struct]
+                 CV: 97.8571
+              bestc: 32
+              bestg: 0.0442
+    alphaLabelOrder: {7x1 cell}
+      SVMLabelOrder: {7x1 cell}
+            tframes: 128
+          sChannels: [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32]
+              ffunc: @getARfeatures
+       ffunc_inputs: {[5]  [1]}
+
+
+results = 
+
+1x140 struct array with fields:
+    label
+    actualLabel
+    certainty
+    likelihoods
+    prob_estimates
+    labelOrder
+
+
+accuracy =
+
+   100
+
+
+ans = 
+
+             label: 'None'
+       actualLabel: 'None'
+         certainty: 0.9406
+       likelihoods: {7x1 cell}
+    prob_estimates: [0.8449 0.0158 0.0117 0.0138 0.0431 0.0502 0.0206]
+        labelOrder: {7x1 cell}
+
+</pre><p>Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+%% labelWindows     
+% Classify data windows using an SVM model and compare to original labels
+%
+%% Syntax:
+%    results = labelWindows(inputData, model)
+%    [results accuracy] = labelWindows(inputData, model, actualLabels)
+%
+%% Description
+%
+% |results = labelWindows(inputData, model)| returns an array of structures
+% containing the classification results of |inputData| based on |model|.
+% 
+% |[results, accuracy] = labelWindows(inputData, model, actualLabels)| 
+% returns the classification accuracy in the field |accuracy|. The 
+% |actualLabels| must be passed in order to compute the accuracy.
+%
+% The input arguments are:
+%
+% <html>
+% <table>
+% <thead>
+% <tr><td><strong>Argument</strong></td>
+% <td><strong>Description<strong></td></tr>
+% </thead>
+% <tr>
+% <td><tt> inputData </tt></td>
+% <td> Either a 3-dimensional matrix of size channels x windowSize x windows,
+%      or an EEGLAB EEG data structure containing epoched data. </td></tr>
+% <tr>
+% <td><tt> model </tt></td>
+% <td> The output model structure from getModel. </td></tr>
+% <tr>
+% <td><tt> actualLabels </tt></td>
+% <td>  (Optional) A cell array of strings denoting the true class labels
+%       for <tt>inputData</tt>. Must be of length windows. </td></tr>
+% </table>
+% </html>
+%
+% The output argument is an array of structures with the following fields:
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Field</strong></td>
+% <td><strong>Description<strong></td></tr>
+% <tr>
+% <td><tt> .label </tt></td>
+% <td> String label with the classified class </td></tr>
+% <tr>
+% <td><tt> .actualLabel </tt></td>
+% <td>  The original label for the window. This will be empty if the
+%                         input actualLabels was omitted. </td></tr>
+% <tr>
+% <td><tt> .certainty </tt></td>
+% <td>  The certainty of the prediction </td></tr>
+% <tr>
+% <td><tt> .likelihoods </tt></td>
+% <td> The order of the categories, from most likely to
+%                         least likely. The first entry of <tt>.likelihoods</tt> is
+%                         the same as <tt>.label</tt>. </td></tr>
+% <tr>
+% <td><tt> .prob_estimates </tt></td>
+% <td>  The estimated probability distribution of each category </td></tr>
+% </table>
+% </html>
+%
+%% Example
+%
+% Build a classification model using only the first 32 channels in the
+% dataset, using an order 5 autogressive model as features. Use 2 cross
+% validations as well. Use the sample training dataset provided with the 
+% toolbox for illustration. Use the output to classify the same data.
+
+    load data/training.mat;
+    load data/labels.mat;
+    model = getModel(training, labels, 1:32, 2, @getARfeatures, 5)
+    [results accuracy] = labelWindows(training, model, labels)
+    results(10)
+
+%%
+% Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio
+##### SOURCE END #####
+--></body></html>

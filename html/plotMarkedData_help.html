@@ -1,0 +1,158 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>plotMarkedData</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-12-02"><meta name="DC.source" content="plotMarkedData_help.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>plotMarkedData</h1><!--introduction--><p>Plots the marked data from markEvents</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#2">Description</a></li></ul></div><h2>Syntax<a name="1"></a></h2><pre>  [] = plotMarkedData(inputData, regions)
+  [] = plotMarkedData(inputData, regions, 'param1', value1, ...)</pre><h2>Description<a name="2"></a></h2><p><tt>[] = plotMarkedData(inputData, regions)</tt> plots a GUI of the output of either <tt>markEvents</tt> or <tt>plotLabeledData</tt> using the data <tt>inputData</tt>.</p><p><tt>[] = plotMarkedData(inputData, regions, 'param1', value1, ...)</tt> specifies additional parameters to be used.</p><p>The required input arguments are:</p><p>
+<table>
+<thead><tr><td><strong>Argument</strong></td>
+<td><strong>Description<strong></td></tr>
+<tr>
+<td><tt> inputData </tt></td>
+<td> Data of either a 3D matrix or an EEGLAB EEG structure
+                    containing 3D (windowed/epoched) data. </td></tr>
+<tr>
+<td><tt> regions </tt></td>
+<td> Previous output of either <tt>markEvents</tt> or <tt>plotLabeledData</tt> </td></tr>
+</table>
+</p><p>The optional inputs are passed in as name-value pairs:</p><p>
+<table>
+<thead><tr><td><strong>Name</strong></td>
+<td><strong>Description<strong></td></tr>
+<tr>
+<td><tt> 'srate' </tt></td>
+<td> Sampling rate of the data </td></tr>
+<tr>
+<td><tt> 'includeClasses' </tt></td>
+<td> Cell array of strings denoting the desired plotting
+                    categories or labels (all by default) </td></tr>
+<tr>
+<td><tt> 'eventList' </tt></td>
+<td> An array of structures with a <tt>.type</tt> and <tt>.latency</tt> field. Both fields
+are numeric. The field <tt>.latency</tt> is represented in frames.</td></tr>
+<tr>
+<td><tt> 'chanlocs' </tt></td>
+<td> An array of structures with a <tt>.labels</tt> field which is a string label
+denoting the channel name.  </td></tr>
+</table>
+</p><p>Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+%% plotMarkedData
+% Plots the marked data from markEvents
+%
+%% Syntax
+%    [] = plotMarkedData(inputData, regions)
+%    [] = plotMarkedData(inputData, regions, 'param1', value1, ...)
+%
+%% Description
+%
+% |[] = plotMarkedData(inputData, regions)| plots a GUI of the output of
+% either |markEvents| or |plotLabeledData| using the data |inputData|. 
+%
+% |[] = plotMarkedData(inputData, regions, 'param1', value1, ...)|
+% specifies additional parameters to be used.
+% 
+% The required input arguments are:
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Argument</strong></td>
+% <td><strong>Description<strong></td></tr>
+% <tr>
+% <td><tt> inputData </tt></td>
+% <td> Data of either a 3D matrix or an EEGLAB EEG structure 
+%                     containing 3D (windowed/epoched) data. </td></tr>
+% <tr>
+% <td><tt> regions </tt></td>
+% <td> Previous output of either <tt>markEvents</tt> or <tt>plotLabeledData</tt> </td></tr>
+% </table>
+% </html>
+%
+% The optional inputs are passed in as name-value pairs:
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Name</strong></td>
+% <td><strong>Description<strong></td></tr>
+% <tr>
+% <td><tt> 'srate' </tt></td>
+% <td> Sampling rate of the data </td></tr>
+% <tr>
+% <td><tt> 'includeClasses' </tt></td>
+% <td> Cell array of strings denoting the desired plotting
+%                     categories or labels (all by default) </td></tr>
+% <tr>
+% <td><tt> 'eventList' </tt></td>
+% <td> An array of structures with a <tt>.type</tt> and <tt>.latency</tt> field. Both fields
+% are numeric. The field <tt>.latency</tt> is represented in frames.</td></tr>
+% <tr>
+% <td><tt> 'chanlocs' </tt></td>
+% <td> An array of structures with a <tt>.labels</tt> field which is a string label
+% denoting the channel name.  </td></tr>
+% </table>
+% </html>
+%%
+% Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio
+##### SOURCE END #####
+--></body></html>

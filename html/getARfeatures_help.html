@@ -1,0 +1,109 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>getARfeatures</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-12-02"><meta name="DC.source" content="getARfeatures_help.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>getARfeatures</h1><!--introduction--><p>Estimate autoregressive feature vectors for data</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#2">Description</a></li><li><a href="#3">Example</a></li><li><a href="#4">Notes</a></li></ul></div><h2>Syntax<a name="1"></a></h2><pre>featureVec = getARfeatures(data, modelOrder)
+featureVec = getARfeatures(data, modelOrder, algorithm)</pre><h2>Description<a name="2"></a></h2><p><tt>featureVec = getARfeatures(data, modelOrder)</tt> calculates the autoregressive model coefficients of individual time windows for each channel in <tt>data</tt>. If <tt>data</tt> is of size channels x windowSize x windows, the function computes windows features each of size channels times <tt>modelOrder</tt>. The function returns an array with feature vectors in the rows for input into LIBSVM.</p><p><tt>featureVec = getARfeatures(..., algorithm)</tt> specifies which algorithm to use for calculating the AR features. When <tt>algorithm</tt> is 1 (the default), the <tt>getARfeatures</tt> function uses the <tt>arburg</tt> function which is part of the MATLAB signal processing toolbox. If <tt>algorithm</tt> is 2, <tt>getARfeatures</tt> uses <tt>arfit2</tt> which is part of the TSA toolbox included with this toolbox.</p><h2>Example<a name="3"></a></h2><p>Create AR feature vectors using order two AR models for random data with 64 channels:</p><pre class="codeinput">   data = random(<span class="string">'normal'</span>, 0, 1, [64, 1000, 10]);
+   featureVec = getARfeatures(data, 2);
+</pre><h2>Notes<a name="4"></a></h2><p>The <tt>arburg.m</tt> function is part of the MATLAB signal processing toolbox. If you don't have that toolbox, use <tt>arfit2.m</tt>, which is part of TSA (Time Series Analysis) toolbox, which is distributed with this package.</p><p>Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+%% getARfeatures
+% Estimate autoregressive feature vectors for data
+%
+%% Syntax
+%  featureVec = getARfeatures(data, modelOrder)
+%  featureVec = getARfeatures(data, modelOrder, algorithm)
+%
+%% Description
+% |featureVec = getARfeatures(data, modelOrder)| calculates the 
+% autoregressive model coefficients of individual time windows for 
+% each channel in |data|. If |data| is of size channels x windowSize x windows,
+% the function computes windows features each of size channels times |modelOrder|.  
+% The function returns an array with feature vectors in the rows for 
+% input into LIBSVM.
+%
+% |featureVec = getARfeatures(..., algorithm)| specifies which algorithm
+% to use for calculating the AR features. When |algorithm| is 1 (the
+% default), the |getARfeatures| function uses the |arburg| function 
+% which is part of the MATLAB signal processing toolbox. If |algorithm|
+% is 2, |getARfeatures| uses |arfit2| which is part of the TSA toolbox
+% included with this toolbox.
+%
+%% Example
+% Create AR feature vectors using order two AR models for random data 
+% with 64 channels:
+   data = random('normal', 0, 1, [64, 1000, 10]);
+   featureVec = getARfeatures(data, 2);
+
+  
+%%  Notes 
+% The |arburg.m| function is part of the MATLAB signal processing
+% toolbox. If you don't have that toolbox, use |arfit2.m|, which is part
+% of TSA (Time Series Analysis) toolbox, which is distributed with this
+% package.
+%
+%% 
+% Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio
+##### SOURCE END #####
+--></body></html>

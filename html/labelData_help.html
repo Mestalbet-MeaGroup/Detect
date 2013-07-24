@@ -1,0 +1,176 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>labelData</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-12-02"><meta name="DC.source" content="labelData_help.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>labelData</h1><!--introduction--><p>Create a structure containing labels with certainy measure for data</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax:</a></li><li><a href="#2">Description</a></li><li><a href="#3">Notes</a></li><li><a href="#4">Example</a></li><li><a href="#5">Extended Notes</a></li></ul></div><h2>Syntax:<a name="1"></a></h2><pre> results = labelData(inputData, model)
+ results = labelData(inputData, model, srate)
+ results = labelData(inputData, model, srate, slideWidth)</pre><h2>Description<a name="2"></a></h2><p><tt>results = labelData(inputData, model)</tt> returns a structure containing the classification results for <tt>inputData</tt> using model (as computed from <tt>getModel</tt>). A default sampling rate of 256 Hz and a default window slide width of 0.01 seconds are used.</p><p><tt>results = labelData(..., srate)</tt> uses a sampling rate of <tt>srate</tt> Hz for the calculation.</p><p><tt>results = labelData(..., slideWidth)</tt> uses a window slide width of <tt>slideWidth</tt> seconds in performing the labeling.</p><h2>Notes<a name="3"></a></h2><p>The output structure <tt>results</tt> has the following fields:</p><p>
+<table>
+<thead><tr><td><strong>Field</strong></td>
+<td><strong>Description<strong></td>
+<td><strong>Sample value</strong></td></tr>
+<tr>
+<td><tt>.label</tt></td>
+<td>Predicted label</td>
+<td><tt>'None'</tt></td></tr>
+<tr>
+<td><tt>.time</tt></td>
+<td>Time in seconds of the predicted label</td>
+<td><tt>[10.6836 10.8047]</tt></td></tr>
+<tr>
+<td><tt>.certainty</tt></td>
+<td>Measure indicating likelihood that prediction is correct</td>
+<td><tt>0.925</tt></td></tr>
+<tr>
+<td><tt>.likelihoods</tt></td>
+<td>Cell array of labels ordered from most likely to
+                 least likely for that event</td>
+<td><tt>{7x1 cell}</tt></td></tr>
+</table>
+</p><h2>Example<a name="4"></a></h2><p>Create a model from the training data and label continuous data using a sampling rate of 256 Hz and a sliding window of 250 ms.</p><pre class="codeinput">   load <span class="string">training.mat</span>;
+   load <span class="string">labels.mat</span>;
+   load <span class="string">testing.mat</span>;
+   model = getModel(training, labels);
+   results = labelData(testing, model, 256, 0.25)
+</pre><pre class="codeoutput">
+results = 
+
+1x1919 struct array with fields:
+    label
+    time
+    certainty
+    likelihoods
+
+</pre><h2>Extended Notes<a name="5"></a></h2><p>The certainty is calculated by using <tt>'-b 1'</tt> option in <tt>LibSVM</tt> to return the probabilities of the possible labels for each window. The <tt>labelData</tt> function calculates the <tt>certainty</tt> as (P(1)-P(2))/P(1), where P(1) is the probability of the most probable label and P(2) is the probability of the second most probable label.</p><p>Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+%% labelData  
+% Create a structure containing labels with certainy measure for data
+%
+%% Syntax:
+%   results = labelData(inputData, model)
+%   results = labelData(inputData, model, srate)
+%   results = labelData(inputData, model, srate, slideWidth)
+%
+%% Description
+%
+% |results = labelData(inputData, model)| returns a structure containing 
+% the classification results for |inputData| using model (as computed from |getModel|). 
+% A default sampling rate of 256 Hz and a default window slide width of
+% 0.01 seconds are used.
+%
+% |results = labelData(..., srate)| uses a sampling rate of |srate| Hz
+% for the calculation.
+%
+% |results = labelData(..., slideWidth)| uses a window slide width of
+% |slideWidth| seconds in performing the labeling.
+%
+ 
+%% Notes
+% The output structure |results| has the following fields:
+%
+% <html>
+% <table>
+% <thead><tr><td><strong>Field</strong></td>
+% <td><strong>Description<strong></td>
+% <td><strong>Sample value</strong></td></tr>
+% <tr>
+% <td><tt>.label</tt></td>
+% <td>Predicted label</td>
+% <td><tt>'None'</tt></td></tr>
+% <tr>
+% <td><tt>.time</tt></td>
+% <td>Time in seconds of the predicted label</td>
+% <td><tt>[10.6836 10.8047]</tt></td></tr>
+% <tr>
+% <td><tt>.certainty</tt></td>
+% <td>Measure indicating likelihood that prediction is correct</td>
+% <td><tt>0.925</tt></td></tr>
+% <tr>
+% <td><tt>.likelihoods</tt></td>
+% <td>Cell array of labels ordered from most likely to
+%                  least likely for that event</td>
+% <td><tt>{7x1 cell}</tt></td></tr>
+% </table>
+% </html>
+%
+%% Example
+% Create a model from the training data and label continuous data using a
+% sampling rate of 256 Hz and a sliding window of 250 ms.
+   load training.mat;
+   load labels.mat;
+   load testing.mat;
+   model = getModel(training, labels);
+   results = labelData(testing, model, 256, 0.25)
+   
+%% Extended Notes
+% The certainty is calculated by using |'-b 1'| option in |LibSVM| to
+% return the probabilities of the possible labels for each window.
+% The |labelData| function calculates the |certainty| as 
+% (P(1)-P(2))/P(1), where P(1) is the probability of the most
+% probable label and P(2) is the probability of the second most
+% probable label.
+%% 
+% Copyright 2011-2013 Vernon Lawhern and Kay A. Robbins, University of Texas at San Antonio
+##### SOURCE END #####
+--></body></html>
